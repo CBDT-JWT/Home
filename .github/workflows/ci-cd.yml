@@ -55,7 +55,11 @@ jobs:
     steps:
 
     - uses: actions/checkout@v3
-    
+    - name: DNS check
+      run: |
+        getent ahosts ${{ secrets.SERVER_HOST }} || true
+        getent hosts  ${{ secrets.SERVER_HOST }} || true
+
     - name: Debug Aliyun SSH connectivity
       run: |
         echo "Testing ${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_PORT }}"
