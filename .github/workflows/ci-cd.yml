@@ -53,8 +53,17 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     
     steps:
+
     - uses: actions/checkout@v3
     
+    - name: Debug Aliyun SSH connectivity
+      run: |
+        echo "Testing ${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_PORT }}"
+        timeout 5 bash -lc 'cat < /dev/null > /dev/tcp/${{ secrets.SERVER_HOST }}/${{ secrets.SERVER_PORT }}' \
+          && echo "✅ SSH port reachable" \
+          || echo "❌ SSH port NOT reachable"
+
+
     - name: Deploy to Server via SSH
       uses: easingthemes/ssh-deploy@main
       env:
