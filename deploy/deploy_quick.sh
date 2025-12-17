@@ -64,6 +64,9 @@ if [ -n "$SSH_KEY_PATH" ]; then
         --exclude 'deploy' \
         --exclude 'deploy_*.sh' \
         --exclude 'deploy_config.sh' \
+        --exclude 'homepage.db' \
+        --exclude 'homepage.db-*' \
+        --exclude 'static/uploads' \
         ./ "$SSH_TARGET:$DEPLOY_PATH/"
 else
     rsync -avz --progress \
@@ -77,6 +80,9 @@ else
         --exclude 'deploy' \
         --exclude 'deploy_*.sh' \
         --exclude 'deploy_config.sh' \
+        --exclude 'homepage.db' \
+        --exclude 'homepage.db-*' \
+        --exclude 'static/uploads' \
         ./ "$SSH_TARGET:$DEPLOY_PATH/"
 fi
 
@@ -87,7 +93,19 @@ $SSH_CMD "$SSH_TARGET" << ENDSSH
 cd $DEPLOY_PATH
 source venv/bin/activate
 pip install -r requirements.txt
-python scripts/init_db.py
+
+# 只在数据库不存在时才初始化
+if [ ! -f homepage.db ]; then
+    echo "⚠️  数据库不存在，执行初始化..."
+    python scripts/init_db.py
+    python scripts/init_gomoku_db.py
+    python scripts/init_admin_db.py
+else
+    echo "✓ 数据库已存在，跳过初始化"
+fi
+
+# 创建上传目录
+mkdir -p static/uploads
 
 # 修复文件权限（确保 Nginx 可以读取 static/notes）
 sudo chmod -R 755 static/notes 2>/dev/null || true

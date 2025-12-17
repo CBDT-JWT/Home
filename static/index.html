@@ -3,8 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人主页 - 建设中</title>
+    <title>江玮陶的个人主页</title>
     <style>
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --card-bg: white;
+            --navbar-bg: rgba(255, 255, 255, 0.7);
+            --navbar-scrolled-bg: rgba(255, 255, 255, 0.95);
+            --hero-cover: url('/static/images/coverlight.png');
+            --navbar-text: #333;
+        }
+
+        body.dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --card-bg: #2a2a2a;
+            --navbar-bg: rgba(25, 42, 86, 0.7);
+            --navbar-scrolled-bg: rgba(25, 42, 86, 0.95);
+            --hero-cover: url('/static/images/coverdark.png');
+            --navbar-text: white;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,92 +34,318 @@
         body, html {
             width: 100%;
             height: 100%;
-            overflow: hidden;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .container {
-            position: relative;
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 100%;
+            padding: 15px 50px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            background: var(--navbar-bg);
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar.scrolled {
+            background: var(--navbar-scrolled-bg);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--navbar-text);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .navbar.scrolled .navbar-brand {
+            color: var(--navbar-text);
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 30px;
+            list-style: none;
             align-items: center;
         }
 
-        .background {
+        .navbar-menu a {
+            color: var(--navbar-text);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .navbar.scrolled .navbar-menu a {
+            color: var(--navbar-text);
+        }
+
+        .navbar-menu a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .navbar.scrolled .navbar-menu a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--navbar-text);
+        }
+
+        /* 导航图标样式 */
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            display: inline-block;
+            vertical-align: middle;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            /* 明亮模式：深灰色 */
+            filter: brightness(0) saturate(100%) invert(20%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(40%) contrast(100%);
+        }
+
+        /* 暗色模式：浅灰色 */
+        body.dark-mode .nav-icon {
+            filter: brightness(0) saturate(100%) invert(80%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(90%) contrast(100%);
+        }
+
+        .navbar-menu a:hover .nav-icon {
+            transform: scale(1.1);
+        }
+
+        /* 主题切换按钮 */
+        .theme-toggle {
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            background: transparent;
+            border: none;
+            color: var(--navbar-text);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .theme-toggle:hover .theme-icon {
+            transform: rotate(20deg);
+        }
+
+        .theme-icon {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            /* 明亮模式：深灰色 */
+            filter: brightness(0) saturate(100%) invert(20%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(40%) contrast(100%);
+        }
+
+        /* 暗色模式：浅灰色 */
+        body.dark-mode .theme-icon {
+            filter: brightness(0) saturate(100%) invert(80%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(90%) contrast(100%);
+        }
+
+        /* 移动端汉堡菜单 */
+        .navbar-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+
+        .navbar-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--navbar-text);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled .navbar-toggle span {
+            background: var(--navbar-text);
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+
+            .navbar-toggle {
+                display: flex;
+            }
+
+            .navbar-menu {
+                position: fixed;
+                top: 60px;
+                right: -100%;
+                width: 250px;
+                height: calc(100vh - 60px);
+                background: var(--card-bg);
+                flex-direction: column;
+                padding: 30px;
+                gap: 20px;
+                transition: right 0.3s ease;
+                box-shadow: -2px 0 20px rgba(0, 0, 0, 0.1);
+            }
+
+            .navbar-menu.active {
+                right: 0;
+            }
+
+            .navbar-menu a {
+                color: var(--text-color);
+            }
+        }
+
+        /* 第一屏 - 全屏背景 */
+        .hero-section {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .hero-background {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* 图片背景：添加半透明黑色遮罩让文字更清晰 */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), 
+                              var(--hero-cover);
             background-size: cover;
             background-position: center;
+            background-attachment: scroll; /* 图片跟随滚动，像书的封面 */
             z-index: -1;
+            transition: background-image 0.3s ease;
         }
 
-        /* 如果你想使用图片作为背景，请取消下面的注释并注释掉上面的 background 属性 */
+        /* 原来的渐变色背景（已禁用） */
         /*
-        .background {
-            background-image: url('/images/background.jpg');
+        .hero-background {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         */
 
-        .content {
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
             text-align: center;
             color: white;
             padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            animation: fadeIn 1.5s ease-in;
         }
 
-        .content h1 {
-            font-size: 3rem;
+        .hero-title {
+            font-size: 4rem;
             font-weight: bold;
-            letter-spacing: 0.1em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 1s ease-out;
         }
 
-        .content p {
-            font-size: 1.2rem;
-            margin: 10px 0;
-            opacity: 0.9;
+        .typewriter {
+            font-size: 1.8rem;
+            min-height: 2.5rem;
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+            font-weight: 300;
         }
 
-        .links {
-            margin-top: 30px;
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
+        .typewriter-text {
+            display: inline-block;
+            border-right: 3px solid white;
+            padding-right: 5px;
+            animation: blink 0.7s step-end infinite;
         }
 
-        .links a {
-            color: white;
-            text-decoration: none;
-            padding: 12px 30px;
-            background: rgba(255, 255, 255, 0.2);
+        @keyframes blink {
+            0%, 100% { border-color: white; }
+            50% { border-color: transparent; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 0.3; }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            cursor: pointer;
+        }
+
+        .scroll-indicator span {
+            display: block;
+            width: 30px;
+            height: 50px;
+            border: 2px solid white;
             border-radius: 25px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(5px);
-            transition: all 0.3s ease;
-            font-size: 1.1rem;
+            position: relative;
         }
 
-        .links a:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.6);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        .scroll-indicator span::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            margin-left: -3px;
+            background: white;
+            border-radius: 50%;
+            animation: scroll 2s infinite;
         }
 
-        @keyframes fadeIn {
+        @keyframes scroll {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(-20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
@@ -107,32 +353,867 @@
             }
         }
 
+        /* 内容区域 */
+        .content-section {
+            min-height: 100vh;
+            padding: 80px 20px;
+            background: var(--bg-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            color: var(--text-color);
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 20px auto 0;
+            border-radius: 2px;
+        }
+
+        .cards {
+            display: grid;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.6s ease-out;
+            overflow: hidden;
+            display: flex;
+            gap: 0;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .card.loading-placeholder {
+            opacity: 0.6;
+            transform: translateY(0);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-thumbnail {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: block;
+        }
+
+        .card-content {
+            padding: 30px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            color: var(--text-color);
+            margin-bottom: 15px;
+        }
+
+        .card p {
+            color: var(--text-color);
+            opacity: 0.8;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex: 1;
+        }
+
+        .card-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .badge-pdf { background: #ff6b6b; color: white; }
+        .badge-markdown { background: #4ecdc4; color: white; }
+        .badge-link { background: #95e1d3; color: #333; }
+
+        .card-link {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .card-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 关于我部分 */
+        .about-section {
+            background: var(--bg-color);
+            padding: 80px 20px;
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .about-content {
+            display: flex;
+            gap: 100px;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .about-left {
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .avatar {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            color: white;
+            transform: scale(0.8) rotate(-10deg);
+            opacity: 0;
+            animation: avatarEntry 1s ease-out 0.5s forwards;
+        }
+
+        @keyframes avatarEntry {
+            to {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .about-typing {
+            margin-top: 25px;
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--text-color);
+            min-height: 28px;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideInUp 0.6s ease-out 1s forwards;
+        }
+
+        @keyframes slideInUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .code-card {
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 30px;
+            color: #dcdcdc;
+            font-family: 'JetBrains Mono', Consolas, 'Courier New', Monaco, monospace;
+            font-size: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            position: relative;
+            width: 450px;
+            transform: translateX(50px) rotateY(10deg);
+            opacity: 0;
+            animation: slideInRight 0.8s ease-out 0.3s forwards;
+        }
+
+        @keyframes slideInRight {
+            to {
+                transform: translateX(0) rotateY(0deg);
+                opacity: 1;
+            }
+        }
+
+        .code-card::before {
+            content: "";
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            width: 12px;
+            height: 12px;
+            background: #ff5f56;
+            border-radius: 50%;
+            box-shadow: 20px 0 #ffbd2e, 40px 0 #27c93f;
+        }
+
+        .code-card pre {
+            margin: 20px 0 0 0;
+            line-height: 1.6;
+            font-family: inherit;
+        }
+
+        .code-card code {
+            font-family: inherit;
+        }
+
+        .keyword { color: #569cd6; }
+        .string { color: #ce9178; }
+        .key { color: #9cdcfe; }
+        .number { color: #b5cea8; }
+        .bracket { color: #ffd700; }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            text-decoration: none;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 友链部分 */
+        .links-section {
+            padding: 80px 20px;
+            background: var(--bg-color);
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .link-card {
+            background: var(--card-bg);
+            border: 2px solid rgba(128, 128, 128, 0.3);
+            border-radius: 12px;
+            padding: 0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: stretch;
+            overflow: hidden;
+        }
+
+        .link-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .link-avatar {
+            width: 120px;
+            background: #e0e0e0; /* 左侧始终淡灰色 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+            border-radius: 12px 0 0 12px;
+        }
+
+        .link-info {
+            flex: 1;
+            padding: 25px;
+            background: var(--card-bg); /* 右侧根据模式变色 */
+            transition: background 0.3s ease;
+        }
+
+        .link-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 5px;
+        }
+
+        .link-desc {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+            line-height: 1.4;
+        }
+
+        /* 页脚 */
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        footer p {
+            opacity: 0.8;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+            /* 移除友情链接的效果 */
+            display: inline;
+            background: none;
+            border: none;
+            padding: 0;
+            margin: 0;
+            border-radius: 0;
+            transform: none;
+            box-shadow: none;
+        }
+
+        footer a:hover {
+            opacity: 1;
+            text-decoration: underline;
+            /* 移除友情链接的悬停效果 */
+            background: none;
+            border: none;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 响应式设计 */
         @media (max-width: 768px) {
-            .content h1 {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .typewriter {
+                font-size: 1.3rem;
+            }
+
+            .section-title {
                 font-size: 2rem;
             }
-            .content p {
-                font-size: 1rem;
+
+            .cards {
+                grid-template-columns: 1fr;
             }
-            .links a {
-                font-size: 0.9rem;
-                padding: 10px 20px;
+
+            .card {
+                flex-direction: column;
+            }
+
+            .card-thumbnail {
+                width: 100%;
+                height: 150px;
+            }
+
+            .about-content {
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .code-card {
+                width: 100%;
+                font-size: 13px;
+                padding: 20px;
+            }
+
+            .avatar {
+                width: 150px;
+                height: 150px;
+                font-size: 60px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="background"></div>
-        <div class="content">
-            <h1>江玮陶的个人主页</h1>
-            <p>建设中，请期待...</p>
-            <div class="links">
-                <a href="/notes/" target="_blank">📚 我的笔记</a>
-                <a href="/gomoku.html">🎮 五子棋游戏</a>
-                <a href="https://github.com/CBDT-JWT" target="_blank">💻 GitHub</a>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <a href="#" class="navbar-brand"></a>
+        <ul class="navbar-menu">
+            <li><a href="/static/notes/index.html" title="笔记">
+                <img src="/static/images/note.png" alt="笔记" class="nav-icon">
+            </a></li>
+            <li><a href="/gomoku.html" title="五子棋">
+                <img src="/static/images/game.png" alt="五子棋" class="nav-icon">
+            </a></li>
+            <li><a href="#links" title="友链">
+                <img src="/static/images/friend.png" alt="友链" class="nav-icon">
+            </a></li>
+            <li><a href="/admin_login.html" title="管理">
+                <img src="/static/images/admin.png" alt="管理" class="nav-icon">
+            </a></li>
+            <li><button class="theme-toggle" onclick="toggleTheme()" title="切换主题">
+                <img id="theme-icon" src="/static/images/moon.png" alt="切换主题" class="theme-icon">
+            </button></li>
+        </ul>
+        <div class="navbar-toggle" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <!-- 第一屏：Hero Section -->
+    <section class="hero-section">
+        <div class="hero-background"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+        <h1 class="hero-title">Hi, this is cbdt's homepage ～</h1>
+            <div class="typewriter">
+                <span class="typewriter-text" id="typewriter"></span>
             </div>
         </div>
-    </div>
+        <div class="scroll-indicator" onclick="scrollToContent()">
+            <span></span>
+        </div>
+    </section>
+
+    <!-- 项目展示区 -->
+    <section class="content-section">
+        <div class="container">
+            <h2 class="section-title">我的项目</h2>
+            <div id="projectsContainer" class="cards">
+                <!-- 初始加载占位 -->
+                <div class="card loading-placeholder" style="opacity: 0.6;">
+                    <div class="card-thumbnail" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); animation: pulse 1.5s ease-in-out infinite;"></div>
+                    <div class="card-content">
+                        <h3 style="background: #e0e0e0; height: 24px; width: 70%; border-radius: 4px; animation: pulse 1.5s ease-in-out infinite;"></h3>
+                        <p style="background: #e0e0e0; height: 16px; width: 90%; margin-top: 10px; border-radius: 4px; animation: pulse 1.5s ease-in-out infinite;"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于我 -->
+    <section id="about" class="about-section">
+        <div class="about-content">
+            <div class="about-left">
+                <div class="avatar">👨‍💻</div>
+                <div class="about-typing" id="aboutTyping"></div>
+            </div>
+            <div class="code-card">
+<pre><code><span class="bracket">{</span>
+  <span class="key">"name"</span>: <span class="string">"江玮陶"</span>,
+  <span class="key">"age"</span>: <span class="number">21</span>,
+  <span class="key">"university"</span>: <span class="string">"Tsinghua"</span>,
+  <span class="key">"major"</span>: <span class="string">"Electronic Engineering"</span>,
+  <span class="key">"hobbies"</span>: <span class="bracket">[</span>
+    <span class="string">"Programming"</span>,
+    <span class="string">"Badminton"</span>,
+    <span class="string">"Music"</span>,
+    <span class="string">"Hardware"</span>
+  <span class="bracket">]</span>,
+  <span class="key">"skills"</span>: <span class="bracket">[</span>
+    <span class="string">"Python"</span>,
+    <span class="string">"JavaScript"</span>,
+    <span class="string">"Flask"</span>,
+    <span class="string">"Web Development"</span>
+  <span class="bracket">]</span>,
+  <span class="key">"email"</span>: <span class="string">"wjiang0415@outlook.com"</span>
+<span class="bracket">}</span></code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- 友链部分 -->
+    <section id="links" class="links-section">
+        <div class="container">
+            <h2 class="section-title">友情链接</h2>
+            <div class="links-grid">
+                <a href="https://eesast.com" class="link-card" target="_blank" rel="noopener noreferrer">
+                    <div class="link-avatar">
+                        <img src="/static/images/eesast.tiff" alt="EESAST" style="width: 80%; height: 80%; object-fit: contain;">
+                    </div>
+                    <div class="link-info">
+                        <div class="link-name">EESAST</div>
+                        <div class="link-desc">清华大学电子工程系学生科协</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <p>&copy; 2025 江玮陶. All rights reserved. | <a href="https://github.com/CBDT-JWT/Home" target="_blank" rel="noopener noreferrer" title="GitHub">GitHub</a> | <a href="mailto:wjiang0415@outlook.com" target="_blank" rel="noopener noreferrer" title="Mail">Mail</a></p>
+    </footer>
+
+    <script>
+        // Hero 区打字机效果
+        const texts = [
+            "Take a seat ..."
+        ];
+        
+        let textIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let typingSpeed = 40;
+
+        function typeWriter() {
+            const currentText = texts[textIndex];
+            const typewriterElement = document.getElementById('typewriter');
+
+            if (isDeleting) {
+                typewriterElement.textContent = currentText.substring(0, charIndex - 1);
+                charIndex--;
+                typingSpeed = 50;
+            } else {
+                typewriterElement.textContent = currentText.substring(0, charIndex + 1);
+                charIndex++;
+                typingSpeed = 100;
+            }
+
+            if (!isDeleting && charIndex === currentText.length) {
+                // 完成一句话，等待后开始删除
+                typingSpeed = 2000;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                // 删除完成，切换到下一句
+                isDeleting = false;
+                textIndex = (textIndex + 1) % texts.length;
+                typingSpeed = 500;
+            }
+
+            setTimeout(typeWriter, typingSpeed);
+        }
+
+        // 关于我区打字机效果
+        const aboutTexts = [
+            "你好，我是江玮陶",
+            "清华电子系本科生",
+            "热爱编程、和电路",
+        ];
+
+        let aboutTextIndex = 0;
+        let aboutCharIndex = 0;
+
+        function typeAbout() {
+            const currentText = aboutTexts[aboutTextIndex];
+            const aboutElement = document.getElementById('aboutTyping');
+            
+            if (aboutCharIndex <= currentText.length) {
+                aboutElement.textContent = currentText.slice(0, aboutCharIndex++);
+                setTimeout(typeAbout, 100);
+            } else {
+                setTimeout(() => {
+                    aboutCharIndex = 0;
+                    aboutTextIndex = (aboutTextIndex + 1) % aboutTexts.length;
+                    typeAbout();
+                }, 2000);
+            }
+        }
+
+        // 初始化标志
+        let initialized = false;
+        
+        function initPage() {
+            if (initialized) return;
+            initialized = true;
+            
+            setTimeout(typeWriter, 500);
+            loadProjects(); // 异步加载项目
+        }
+        
+        // 页面DOM加载后立即开始（不等待图片等资源）
+        document.addEventListener('DOMContentLoaded', () => {
+            initPage();
+        });
+        
+        // 如果DOM已经就绪，立即执行（针对缓存页面）
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+            initPage();
+        }
+
+        // 检测滚动到关于我区域时启动打字效果
+        let aboutTypingStarted = false;
+        function checkAboutSection() {
+            const aboutSection = document.querySelector('.about-section');
+            const aboutTop = aboutSection.getBoundingClientRect().top;
+            const windowHeight = window.innerHeight;
+            
+            if (!aboutTypingStarted && aboutTop < windowHeight - 100) {
+                aboutTypingStarted = true;
+                setTimeout(typeAbout, 1800);
+            }
+        }
+
+        // 主题切换功能
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                themeIcon.src = '/static/images/moon.png';
+                themeIcon.alt = '切换到暗色模式';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.add('dark-mode');
+                themeIcon.src = '/static/images/sun.png';
+                themeIcon.alt = '切换到亮色模式';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // 页面加载时应用保存的主题
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeIcon.src = '/static/images/sun.png';
+                themeIcon.alt = '切换到亮色模式';
+            } else {
+                themeIcon.src = '/static/images/moon.png';
+                themeIcon.alt = '切换到暗色模式';
+            }
+        });
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // 移动端菜单切换
+        function toggleMenu() {
+            const menu = document.querySelector('.navbar-menu');
+            menu.classList.toggle('active');
+        }
+
+        // 点击菜单项后关闭移动端菜单
+        document.querySelectorAll('.navbar-menu a').forEach(link => {
+            link.addEventListener('click', function() {
+                const menu = document.querySelector('.navbar-menu');
+                menu.classList.remove('active');
+            });
+        });
+
+        // 滚动到内容区
+        function scrollToContent() {
+            document.querySelector('.content-section').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        // 滚动动画
+        function revealOnScroll() {
+            const cards = document.querySelectorAll('.card:not(.loading-placeholder)');
+            cards.forEach(card => {
+                const cardTop = card.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                // 如果卡片在视口内或上方，显示它
+                if (cardTop < windowHeight - 50) {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }
+            });
+
+            // 检查关于我区域
+            checkAboutSection();
+        }
+
+        // 注意：不再在这里初始化卡片样式，让CSS处理
+
+        window.addEventListener('scroll', revealOnScroll);
+        window.addEventListener('load', revealOnScroll);
+
+        // 加载项目列表
+        let projectsLoaded = false;
+        async function loadProjects() {
+            if (projectsLoaded) return;
+            projectsLoaded = true;
+            
+            const container = document.getElementById('projectsContainer');
+            
+            try {
+                const response = await fetch('/api/admin/projects', {
+                    signal: AbortSignal.timeout(5000) // 5秒超时
+                });
+                
+                if (!response.ok) throw new Error('加载失败');
+                
+                const data = await response.json();
+                container.innerHTML = '';
+
+                if (data.projects.length === 0) {
+                    // 显示默认项目
+                    container.innerHTML = `
+                        <div class="card" onclick="window.open('/notes/', '_blank')">
+                            <div class="card-thumbnail" style="display: flex; align-items: center; justify-content: center; font-size: 4em;">
+                                📚
+                            </div>
+                            <div class="card-content">
+                                <h3>学习笔记</h3>
+                                <p>记录学习过程中的知识点、心得和总结，涵盖多个技术领域。</p>
+                                <span class="card-badge badge-link">LINK</span>
+                            </div>
+                        </div>
+                        <div class="card" onclick="window.location.href='/gomoku.html'">
+                            <div class="card-thumbnail" style="display: flex; align-items: center; justify-content: center; font-size: 4em;">
+                                🎮
+                            </div>
+                            <div class="card-content">
+                                <h3>五子棋游戏</h3>
+                                <p>在线多人五子棋对战平台，支持房间创建、实时对局和胜负判定。</p>
+                                <span class="card-badge badge-link">GAME</span>
+                            </div>
+                        </div>
+                    `;
+                    // 强制显示默认项目
+                    setTimeout(() => {
+                        const cards = container.querySelectorAll('.card');
+                        cards.forEach(card => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        });
+                    }, 50);
+                    return;
+                }
+
+                data.projects.forEach(project => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    // 直接设置为可见，让revealOnScroll处理动画
+                    
+                    let thumbnailHtml;
+                    if (project.thumbnail) {
+                        const thumbnailSrc = project.thumbnail.startsWith('/') ? project.thumbnail : '/' + project.thumbnail;
+                        thumbnailHtml = `<img src="${thumbnailSrc}" alt="${project.title}" class="card-thumbnail" loading="lazy">`;
+                    } else {
+                        const icon = project.content_type === 'pdf' ? '📄' : 
+                                     project.content_type === 'markdown' ? '📝' : '🔗';
+                        thumbnailHtml = `<div class="card-thumbnail" style="display: flex; align-items: center; justify-content: center; font-size: 4em;">${icon}</div>`;
+                    }
+                    
+                    card.innerHTML = `
+                        ${thumbnailHtml}
+                        <div class="card-content">
+                            <h3>${project.title}</h3>
+                            <p>${project.description || '暂无描述'}</p>
+                            <div>
+                                <span class="card-badge badge-${project.content_type}">${project.content_type.toUpperCase()}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 点击事件
+                    card.addEventListener('click', () => openProject(project));
+                    
+                    container.appendChild(card);
+                });
+
+                // 强制显示所有项目
+                const allCards = container.querySelectorAll('.card');
+                allCards.forEach(card => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                });
+                
+                // 备用：延迟后再触发一次
+                setTimeout(() => {
+                    revealOnScroll();
+                }, 100);
+            } catch (error) {
+                console.error('加载项目失败:', error);
+                projectsLoaded = false; // 允许重试
+                // 加载失败时显示默认项目
+                container.innerHTML = `
+                    <div class="card" onclick="window.open('/notes/', '_blank')">
+                        <div class="card-thumbnail" style="display: flex; align-items: center; justify-content: center; font-size: 4em;">
+                            📚
+                        </div>
+                        <div class="card-content">
+                            <h3>学习笔记</h3>
+                            <p>记录学习过程中的知识点、心得和总结，涵盖多个技术领域。</p>
+                            <span class="card-badge badge-link">LINK</span>
+                        </div>
+                    </div>
+                    <div class="card" onclick="window.location.href='/gomoku.html'">
+                        <div class="card-thumbnail" style="display: flex; align-items: center; justify-content: center; font-size: 4em;">
+                            🎮
+                        </div>
+                        <div class="card-content">
+                            <h3>五子棋游戏</h3>
+                            <p>在线多人五子棋对战平台，支持房间创建、实时对局和胜负判定。</p>
+                            <span class="card-badge badge-link">GAME</span>
+                        </div>
+                    </div>
+                `;
+                // 强制显示错误时的默认项目
+                setTimeout(() => {
+                    const cards = container.querySelectorAll('.card');
+                    cards.forEach(card => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    });
+                }, 50);
+            }
+        }
+
+        // 打开项目
+        function openProject(project) {
+            if (project.content_type === 'link') {
+                window.open(project.content_path, '_blank');
+            } else if (project.content_type === 'pdf') {
+                // 使用PDF查看器打开
+                const pdfPath = encodeURIComponent(project.content_path);
+                const title = encodeURIComponent(project.title);
+                window.open(`/pdf_viewer.html?path=${pdfPath}&title=${title}`, '_blank');
+            } else if (project.content_type === 'markdown') {
+                // Markdown 直接打开（浏览器会渲染或下载）
+                window.open(project.content_path, '_blank');
+            }
+        }
+    </script>
 </body>
 </html>

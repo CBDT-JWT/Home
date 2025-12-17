@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员面板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-danger {
+            background: #d63031;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            font-size: 3em;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-detail {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .projects-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .project-item {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 0;
+            display: flex;
+            gap: 0;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .project-thumbnail {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            background: #ddd;
+            flex-shrink: 0;
+            display: block;
+        }
+
+        .project-info {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .project-info h3 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .project-info p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            flex-shrink: 0;
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+
+        .btn-edit {
+            background: #00b894;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #d63031;
+            color: white;
+        }
+
+        .file-upload {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload:hover {
+            border-color: #667eea;
+            background: #f9f9ff;
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .badge-pdf { background: #ff6b6b; color: white; }
+        .badge-markdown { background: #4ecdc4; color: white; }
+        .badge-link { background: #95e1d3; color: #333; }
+
+        .hidden {
+            display: none;
+        }
+
+        /* 修改密码对话框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>📊 管理员面板</h1>
+            <div class="header-actions">
+                <span id="adminName"></span>
+                <button class="btn btn-primary" onclick="showChangePasswordDialog()">修改密码</button>
+                <button class="btn btn-danger" onclick="logout()">登出</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 统计信息 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-info">
+                    <div class="stat-label">总访问量</div>
+                    <div class="stat-value" id="totalVisitors">-</div>
+                    <div class="stat-detail">所有页面</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🏠</div>
+                <div class="stat-info">
+                    <div class="stat-label">首页访问</div>
+                    <div class="stat-value" id="homeVisitors">-</div>
+                    <div class="stat-detail">主页统计</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📁</div>
+                <div class="stat-info">
+                    <div class="stat-label">项目数量</div>
+                    <div class="stat-value" id="totalProjects">-</div>
+                    <div class="stat-detail">管理的项目</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-info">
+                    <div class="stat-label">今日访问</div>
+                    <div class="stat-value" id="todayVisitors">-</div>
+                    <div class="stat-detail">最近24小时</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 创建/编辑项目 -->
+        <div class="section">
+            <h2 id="formTitle">➕ 创建新项目</h2>
+            <form id="projectForm">
+                <input type="hidden" id="projectId">
+                
+                <div class="form-group">
+                    <label for="title">项目标题 *</label>
+                    <input type="text" id="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">项目描述</label>
+                    <textarea id="description"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="thumbnail">缩略图</label>
+                    <div class="file-upload" onclick="document.getElementById('thumbnailFile').click()">
+                        <input type="file" id="thumbnailFile" accept="image/*" onchange="uploadThumbnail(this)">
+                        <p>点击上传缩略图</p>
+                        <img id="thumbnailPreview" class="preview-image hidden">
+                    </div>
+                    <input type="hidden" id="thumbnail">
+                </div>
+
+                <div class="form-group">
+                    <label for="contentType">内容类型 *</label>
+                    <select id="contentType" onchange="handleContentTypeChange()" required>
+                        <option value="">请选择</option>
+                        <option value="pdf">PDF 文档</option>
+                        <option value="markdown">Markdown 文档</option>
+                        <option value="link">外部链接</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="fileUploadGroup" style="display: none;">
+                    <label for="contentFile">上传文件</label>
+                    <div class="file-upload" onclick="document.getElementById('contentFile').click()">
+                        <input type="file" id="contentFile" accept=".pdf,.md" onchange="uploadContent(this)">
+                        <p>点击上传 PDF 或 Markdown 文件</p>
+                    </div>
+                </div>
+
+                <div class="form-group" id="linkInputGroup" style="display: none;">
+                    <label for="contentLink">链接地址</label>
+                    <input type="url" id="contentLink" placeholder="https://example.com">
+                </div>
+
+                <input type="hidden" id="contentPath">
+
+                <div class="form-group">
+                    <label for="orderIndex">排序（数字越大越靠前）</label>
+                    <input type="number" id="orderIndex" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="isVisible" checked>
+                        显示在首页
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">保存项目</button>
+                <button type="button" class="btn" onclick="resetForm()">取消</button>
+            </form>
+        </div>
+
+        <!-- 项目列表 -->
+        <div class="section">
+            <h2>📋 项目列表</h2>
+            <div id="projectsList" class="projects-list"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentEditingId = null;
+
+        // 检查登录状态
+        async function checkLogin() {
+            try {
+                const response = await fetch('/api/admin/check');
+                const data = await response.json();
+                
+                if (!data.logged_in) {
+                    window.location.href = '/admin_login.html';
+                    return;
+                }
+                
+                document.getElementById('adminName').textContent = `👤 ${data.username}`;
+                loadProjects();
+                loadStats(); // 加载统计数据
+            } catch (error) {
+                console.error('检查登录失败:', error);
+                window.location.href = '/admin_login.html';
+            }
+        }
+
+        // 加载统计数据
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/admin/stats');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('totalVisitors').textContent = data.total_visitors || 0;
+                    document.getElementById('homeVisitors').textContent = data.home_visitors || 0;
+                    document.getElementById('totalProjects').textContent = data.total_projects || 0;
+                    document.getElementById('todayVisitors').textContent = data.today_visitors || 0;
+                }
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+            }
+        }
+
+        // 登出
+        async function logout() {
+            try {
+                await fetch('/api/admin/logout', { method: 'POST' });
+                window.location.href = '/admin_login.html';
+            } catch (error) {
+                console.error('登出失败:', error);
+            }
+        }
+
+        // 上传缩略图
+        async function uploadThumbnail(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/api/admin/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('thumbnail').value = data.path;
+                    const preview = document.getElementById('thumbnailPreview');
+                    preview.src = '/' + data.path;
+                    preview.classList.remove('hidden');
+                } else {
+                    alert('上传失败: ' + data.error);
+                }
+            } catch (error) {
+                alert('上传失败: ' + error.message);
+            }
+        }
+
+        // 上传内容文件
+        async function uploadContent(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/api/admin/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('contentPath').value = data.path;
+                    alert('文件上传成功！');
+                } else {
+                    alert('上传失败: ' + data.error);
+                }
+            } catch (error) {
+                alert('上传失败: ' + error.message);
+            }
+        }
+
+        // 处理内容类型变化
+        function handleContentTypeChange() {
+            const type = document.getElementById('contentType').value;
+            const fileGroup = document.getElementById('fileUploadGroup');
+            const linkGroup = document.getElementById('linkInputGroup');
+
+            if (type === 'link') {
+                fileGroup.style.display = 'none';
+                linkGroup.style.display = 'block';
+            } else if (type === 'pdf' || type === 'markdown') {
+                fileGroup.style.display = 'block';
+                linkGroup.style.display = 'none';
+            } else {
+                fileGroup.style.display = 'none';
+                linkGroup.style.display = 'none';
+            }
+        }
+
+        // 提交表单
+        document.getElementById('projectForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const contentType = document.getElementById('contentType').value;
+            let contentPath = document.getElementById('contentPath').value;
+
+            if (contentType === 'link') {
+                contentPath = document.getElementById('contentLink').value;
+            }
+
+            if (!contentPath) {
+                alert('请上传文件或填写链接');
+                return;
+            }
+
+            const data = {
+                title: document.getElementById('title').value,
+                description: document.getElementById('description').value,
+                thumbnail: document.getElementById('thumbnail').value,
+                content_type: contentType,
+                content_path: contentPath,
+                order_index: parseInt(document.getElementById('orderIndex').value),
+                is_visible: document.getElementById('isVisible').checked
+            };
+
+            try {
+                let response;
+                if (currentEditingId) {
+                    response = await fetch(`/api/admin/projects/${currentEditingId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                } else {
+                    response = await fetch('/api/admin/projects', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                }
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(currentEditingId ? '项目更新成功！' : '项目创建成功！');
+                    resetForm();
+                    loadProjects();
+                } else {
+                    alert('操作失败: ' + result.error);
+                }
+            } catch (error) {
+                alert('操作失败: ' + error.message);
+            }
+        });
+
+        // 加载项目列表
+        async function loadProjects() {
+            try {
+                const response = await fetch('/api/admin/projects');
+                const data = await response.json();
+
+                const container = document.getElementById('projectsList');
+                container.innerHTML = '';
+
+                if (data.projects.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">暂无项目</p>';
+                    return;
+                }
+
+                data.projects.forEach(project => {
+                    const div = document.createElement('div');
+                    div.className = 'project-item';
+                    const thumbnailSrc = project.thumbnail 
+                        ? (project.thumbnail.startsWith('/') ? project.thumbnail : '/' + project.thumbnail)
+                        : '/images/default-thumbnail.png';
+                    div.innerHTML = `
+                        <img src="${thumbnailSrc}" 
+                             alt="${project.title}" 
+                             class="project-thumbnail"
+                             onerror="this.src='/images/default-thumbnail.png'">
+                        <div class="project-info">
+                            <h3>${project.title}</h3>
+                            <p>${project.description || '暂无描述'}</p>
+                            <span class="badge badge-${project.content_type}">${project.content_type.toUpperCase()}</span>
+                            ${project.is_visible ? '' : '<span class="badge" style="background: #ccc;">隐藏</span>'}
+                        </div>
+                        <div class="project-actions">
+                            <button class="btn btn-small btn-edit" onclick="editProject(${project.id})">编辑</button>
+                            <button class="btn btn-small btn-delete" onclick="deleteProject(${project.id})">删除</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                console.error('加载项目失败:', error);
+            }
+        }
+
+        // 编辑项目
+        async function editProject(id) {
+            try {
+                const response = await fetch('/api/admin/projects');
+                const data = await response.json();
+                const project = data.projects.find(p => p.id === id);
+
+                if (!project) return;
+
+                currentEditingId = id;
+                document.getElementById('formTitle').textContent = '✏️ 编辑项目';
+                document.getElementById('projectId').value = id;
+                document.getElementById('title').value = project.title;
+                document.getElementById('description').value = project.description || '';
+                document.getElementById('thumbnail').value = project.thumbnail || '';
+                document.getElementById('contentType').value = project.content_type;
+                document.getElementById('orderIndex').value = project.order_index;
+                document.getElementById('isVisible').checked = project.is_visible;
+
+                if (project.thumbnail) {
+                    const preview = document.getElementById('thumbnailPreview');
+                    preview.src = project.thumbnail.startsWith('/') ? project.thumbnail : '/' + project.thumbnail;
+                    preview.classList.remove('hidden');
+                }
+
+                if (project.content_type === 'link') {
+                    document.getElementById('contentLink').value = project.content_path;
+                } else {
+                    document.getElementById('contentPath').value = project.content_path;
+                }
+
+                handleContentTypeChange();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (error) {
+                console.error('加载项目失败:', error);
+            }
+        }
+
+        // 删除项目
+        async function deleteProject(id) {
+            if (!confirm('确定要删除这个项目吗？')) return;
+
+            try {
+                const response = await fetch(`/api/admin/projects/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('项目删除成功！');
+                    loadProjects();
+                } else {
+                    const data = await response.json();
+                    alert('删除失败: ' + data.error);
+                }
+            } catch (error) {
+                alert('删除失败: ' + error.message);
+            }
+        }
+
+        // 重置表单
+        function resetForm() {
+            currentEditingId = null;
+            document.getElementById('formTitle').textContent = '➕ 创建新项目';
+            document.getElementById('projectForm').reset();
+            document.getElementById('thumbnailPreview').classList.add('hidden');
+            document.getElementById('fileUploadGroup').style.display = 'none';
+            document.getElementById('linkInputGroup').style.display = 'none';
+        }
+
+        // 页面加载时检查登录
+        checkLogin();
+
+        // 修改密码相关函数
+        function showChangePasswordDialog() {
+            document.getElementById('changePasswordModal').classList.add('show');
+        }
+
+        function closeChangePasswordDialog() {
+            document.getElementById('changePasswordModal').classList.remove('show');
+            document.getElementById('changePasswordForm').reset();
+        }
+
+        async function changePassword() {
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                alert('请填写所有字段');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                alert('新密码长度不能少于6位');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert('两次输入的新密码不一致');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        old_password: oldPassword,
+                        new_password: newPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('密码修改成功！');
+                    closeChangePasswordDialog();
+                } else {
+                    alert(data.error || '密码修改失败');
+                }
+            } catch (error) {
+                alert('网络错误：' + error.message);
+            }
+        }
+    </script>
+
+    <!-- 修改密码对话框 -->
+    <div id="changePasswordModal" class="modal-overlay" onclick="if(event.target===this) closeChangePasswordDialog()">
+        <div class="modal">
+            <h2>🔒 修改密码</h2>
+            <form id="changePasswordForm" onsubmit="event.preventDefault(); changePassword();">
+                <div class="form-group">
+                    <label for="oldPassword">旧密码 *</label>
+                    <input type="password" id="oldPassword" required autocomplete="current-password">
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword">新密码 * (至少6位)</label>
+                    <input type="password" id="newPassword" required minlength="6" autocomplete="new-password">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">确认新密码 *</label>
+                    <input type="password" id="confirmPassword" required minlength="6" autocomplete="new-password">
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeChangePasswordDialog()">取消</button>
+                    <button type="submit" class="btn btn-primary">确认修改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

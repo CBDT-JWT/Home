@@ -129,6 +129,10 @@ def messages():
 from api_gomoku import gomoku_bp
 app.register_blueprint(gomoku_bp)
 
+# 注册管理员蓝图
+from api_admin import admin_bp
+app.register_blueprint(admin_bp)
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 443))
     app.run(host='0.0.0.0', port=port, debug=True)
