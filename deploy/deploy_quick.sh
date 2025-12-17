@@ -88,6 +88,11 @@ cd $DEPLOY_PATH
 source venv/bin/activate
 pip install -r requirements.txt
 python scripts/init_db.py
+
+# 修复文件权限（确保 Nginx 可以读取 static/notes）
+sudo chmod -R 755 static/notes 2>/dev/null || true
+sudo chmod 755 static /root/homepage /root 2>/dev/null || true
+
 sudo systemctl restart homepage
 echo "✓ 服务已重启"
 ENDSSH

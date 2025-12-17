@@ -39,6 +39,12 @@ EOF
 # 使用临时配置构建
 mkdocs build --clean --config-file mkdocs.build.yml
 
+# 修复生成文件的权限，确保 Nginx 可以读取
+cd ../static/notes
+find . -type f -exec chmod 644 {} \;
+find . -type d -exec chmod 755 {} \;
+cd ../../docs_source
+
 # 清理临时文件
 rm mkdocs.build.yml
 
