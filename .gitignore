@@ -38,5 +38,10 @@ Thumbs.db
 .env
 .env.local
 
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
 # Deployment config
 deploy_config.sh

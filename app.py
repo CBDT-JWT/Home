@@ -1,17 +1,128 @@
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, jsonify, request
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 import os
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 
+# 数据库配置
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or \
+    'sqlite:///' + os.path.join(basedir, 'homepage.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
+
+db = SQLAlchemy(app)
+
+# 数据模型
+class Visitor(db.Model):
+    """访客记录"""
+    id = db.Column(db.Integer, primary_key=True)
+    ip_address = db.Column(db.String(45), nullable=False)
+    user_agent = db.Column(db.String(255))
+    visit_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    page = db.Column(db.String(255), default='/')
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'ip_address': self.ip_address,
+            'user_agent': self.user_agent,
+            'visit_time': self.visit_time.isoformat(),
+            'page': self.page
+        }
+
+class Message(db.Model):
+    """留言板"""
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120))
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'content': self.content,
+            'created_at': self.created_at.isoformat()
+        }
+
+# 创建数据库表
+with app.app_context():
+    db.create_all()
+
 @app.route('/')
 def index():
     """返回首页"""
+    # 记录访客
+    try:
+        visitor = Visitor(
+            ip_address=request.remote_addr,
+            user_agent=request.headers.get('User-Agent'),
+            page='/'
+        )
+        db.session.add(visitor)
+        db.session.commit()
+    except Exception as e:
+        print(f"记录访客失败: {e}")
+    
     return send_from_directory('static', 'index.html')
 
 @app.route('/health')
 def health():
     """健康检查接口"""
-    return {'status': 'ok'}, 200
+    try:
+        # 检查数据库连接
+        db.session.execute(db.text('SELECT 1'))
+        db_status = 'ok'
+    except Exception as e:
+        db_status = f'error: {str(e)}'
+    
+    return {
+        'status': 'ok',
+        'database': db_status,
+        'timestamp': datetime.utcnow().isoformat()
+    }, 200
+
+@app.route('/api/visitors')
+def get_visitors():
+    """获取访客统计"""
+    try:
+        total = Visitor.query.count()
+        recent = Visitor.query.order_by(Visitor.visit_time.desc()).limit(10).all()
+        
+        return jsonify({
+            'total': total,
+            'recent': [v.to_dict() for v in recent]
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/messages', methods=['GET', 'POST'])
+def messages():
+    """留言板接口"""
+    if request.method == 'POST':
+        try:
+            data = request.get_json()
+            message = Message(
+                name=data.get('name'),
+                email=data.get('email'),
+                content=data.get('content')
+            )
+            db.session.add(message)
+            db.session.commit()
+            
+            return jsonify(message.to_dict()), 201
+        except Exception as e:
+            return jsonify({'error': str(e)}), 400
+    else:
+        try:
+            messages = Message.query.order_by(Message.created_at.desc()).all()
+            return jsonify([m.to_dict() for m in messages])
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 443))
