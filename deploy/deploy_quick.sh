@@ -39,11 +39,15 @@ echo -e "${YELLOW}快速部署到 $SERVER_HOST${NC}"
 echo ""
 
 # 构建文档
-echo -e "${YELLOW}构建MkDocs文档...${NC}"
-cd "$PROJECT_ROOT/docs_source"
-mkdocs build --clean
-cd "$PROJECT_ROOT"
-echo -e "${GREEN}✓ 文档构建完成${NC}"
+if command -v mkdocs &> /dev/null; then
+    echo -e "${YELLOW}构建MkDocs文档...${NC}"
+    cd "$PROJECT_ROOT"
+    ./scripts/build_docs.sh > /dev/null 2>&1
+    echo -e "${GREEN}✓ 文档构建完成${NC}"
+else
+    echo -e "${YELLOW}⚠ mkdocs未安装，跳过文档构建${NC}"
+    echo -e "${YELLOW}提示: pip install mkdocs-material neoteroi-mkdocs${NC}"
+fi
 echo ""
 
 # 同步代码

@@ -1,0 +1,3 @@
+[submodule "docs_source"]
+	path = docs_source
+	url = git@github.com:CBDT-JWT/EEnotes.git
