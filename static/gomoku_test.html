@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五子棋 - API 测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .response {
+            background: #f5f5f5;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .response pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .success {
+            color: #27ae60;
+        }
+
+        .error {
+            color: #e74c3c;
+        }
+
+        .info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .info strong {
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 五子棋 API 测试</h1>
+
+        <div class="info">
+            <strong>使用说明：</strong> 
+            <p>1. 首先创建房间，记下房间码</p>
+            <p>2. 在新标签页打开此页面，用房间码加入房间</p>
+            <p>3. 双方准备后开始游戏</p>
+        </div>
+
+        <div class="grid">
+            <!-- 创建房间 -->
+            <div class="card">
+                <h2>1. 创建房间</h2>
+                <div class="form-group">
+                    <label>玩家昵称</label>
+                    <input type="text" id="createName" value="玩家1" placeholder="输入你的昵称">
+                </div>
+                <div class="form-group">
+                    <label>棋盘大小</label>
+                    <input type="number" id="boardSize" value="15" min="15" max="19">
+                </div>
+                <button onclick="createRoom()">创建房间</button>
+                <div id="createResponse" class="response" style="display:none;"></div>
+            </div>
+
+            <!-- 加入房间 -->
+            <div class="card">
+                <h2>2. 加入房间</h2>
+                <div class="form-group">
+                    <label>房间码</label>
+                    <input type="text" id="joinRoomCode" placeholder="输入房间码" style="text-transform: uppercase;">
+                </div>
+                <div class="form-group">
+                    <label>玩家昵称</label>
+                    <input type="text" id="joinName" value="玩家2" placeholder="输入你的昵称">
+                </div>
+                <button onclick="joinRoom()">加入房间</button>
+                <div id="joinResponse" class="response" style="display:none;"></div>
+            </div>
+
+            <!-- 准备 -->
+            <div class="card">
+                <h2>3. 准备游戏</h2>
+                <div class="form-group">
+                    <label>房间码</label>
+                    <input type="text" id="readyRoomCode" placeholder="输入房间码" style="text-transform: uppercase;">
+                </div>
+                <div class="form-group">
+                    <label>玩家昵称</label>
+                    <input type="text" id="readyName" placeholder="输入你的昵称">
+                </div>
+                <button onclick="setReady(true)">准备</button>
+                <button onclick="setReady(false)" style="background: #95a5a6;">取消准备</button>
+                <div id="readyResponse" class="response" style="display:none;"></div>
+            </div>
+
+            <!-- 获取房间信息 -->
+            <div class="card">
+                <h2>4. 查看房间</h2>
+                <div class="form-group">
+                    <label>房间码</label>
+                    <input type="text" id="getRoomCode" placeholder="输入房间码" style="text-transform: uppercase;">
+                </div>
+                <button onclick="getRoomInfo()">获取房间信息</button>
+                <button onclick="startPolling()" style="background: #27ae60;">开始轮询</button>
+                <button onclick="stopPolling()" style="background: #e74c3c;">停止轮询</button>
+                <div id="getRoomResponse" class="response" style="display:none;"></div>
+            </div>
+
+            <!-- 落子 -->
+            <div class="card">
+                <h2>5. 落子</h2>
+                <div class="form-group">
+                    <label>房间码</label>
+                    <input type="text" id="moveRoomCode" placeholder="输入房间码" style="text-transform: uppercase;">
+                </div>
+                <div class="form-group">
+                    <label>玩家昵称</label>
+                    <input type="text" id="moveName" placeholder="输入你的昵称">
+                </div>
+                <div class="form-group">
+                    <label>X 坐标 (0-14)</label>
+                    <input type="number" id="moveX" min="0" max="14" value="7">
+                </div>
+                <div class="form-group">
+                    <label>Y 坐标 (0-14)</label>
+                    <input type="number" id="moveY" min="0" max="14" value="7">
+                </div>
+                <button onclick="makeMove()">落子</button>
+                <div id="moveResponse" class="response" style="display:none;"></div>
+            </div>
+
+            <!-- 认输 -->
+            <div class="card">
+                <h2>6. 认输</h2>
+                <div class="form-group">
+                    <label>房间码</label>
+                    <input type="text" id="surrenderRoomCode" placeholder="输入房间码" style="text-transform: uppercase;">
+                </div>
+                <div class="form-group">
+                    <label>玩家昵称</label>
+                    <input type="text" id="surrenderName" placeholder="输入你的昵称">
+                </div>
+                <button onclick="surrender()" style="background: #e74c3c;">认输</button>
+                <div id="surrenderResponse" class="response" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let pollingInterval = null;
+
+        function showResponse(elementId, data, isError = false) {
+            const el = document.getElementById(elementId);
+            el.style.display = 'block';
+            el.className = 'response ' + (isError ? 'error' : 'success');
+            el.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+
+        async function createRoom() {
+            try {
+                const response = await fetch('/api/gomoku/rooms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        creator_name: document.getElementById('createName').value,
+                        board_size: parseInt(document.getElementById('boardSize').value)
+                    })
+                });
+                const data = await response.json();
+                showResponse('createResponse', data, !response.ok);
+                
+                if (response.ok) {
+                    // 自动填充房间码
+                    document.getElementById('readyRoomCode').value = data.room_code;
+                    document.getElementById('getRoomCode').value = data.room_code;
+                    document.getElementById('moveRoomCode').value = data.room_code;
+                    document.getElementById('readyName').value = data.creator_name;
+                    document.getElementById('moveName').value = data.creator_name;
+                }
+            } catch (error) {
+                showResponse('createResponse', { error: error.message }, true);
+            }
+        }
+
+        async function joinRoom() {
+            try {
+                const roomCode = document.getElementById('joinRoomCode').value.toUpperCase();
+                const response = await fetch(`/api/gomoku/rooms/${roomCode}/join`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        player_name: document.getElementById('joinName').value
+                    })
+                });
+                const data = await response.json();
+                showResponse('joinResponse', data, !response.ok);
+                
+                if (response.ok) {
+                    // 自动填充房间码
+                    document.getElementById('readyRoomCode').value = roomCode;
+                    document.getElementById('getRoomCode').value = roomCode;
+                    document.getElementById('moveRoomCode').value = roomCode;
+                    document.getElementById('readyName').value = data.player_name;
+                    document.getElementById('moveName').value = data.player_name;
+                }
+            } catch (error) {
+                showResponse('joinResponse', { error: error.message }, true);
+            }
+        }
+
+        async function setReady(ready) {
+            try {
+                const roomCode = document.getElementById('readyRoomCode').value.toUpperCase();
+                const response = await fetch(`/api/gomoku/rooms/${roomCode}/ready`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        player_name: document.getElementById('readyName').value,
+                        is_ready: ready
+                    })
+                });
+                const data = await response.json();
+                showResponse('readyResponse', data, !response.ok);
+            } catch (error) {
+                showResponse('readyResponse', { error: error.message }, true);
+            }
+        }
+
+        async function getRoomInfo() {
+            try {
+                const roomCode = document.getElementById('getRoomCode').value.toUpperCase();
+                const response = await fetch(`/api/gomoku/rooms/${roomCode}`);
+                const data = await response.json();
+                showResponse('getRoomResponse', data, !response.ok);
+            } catch (error) {
+                showResponse('getRoomResponse', { error: error.message }, true);
+            }
+        }
+
+        async function makeMove() {
+            try {
+                const roomCode = document.getElementById('moveRoomCode').value.toUpperCase();
+                const response = await fetch(`/api/gomoku/rooms/${roomCode}/move`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        player_name: document.getElementById('moveName').value,
+                        x: parseInt(document.getElementById('moveX').value),
+                        y: parseInt(document.getElementById('moveY').value)
+                    })
+                });
+                const data = await response.json();
+                showResponse('moveResponse', data, !response.ok);
+            } catch (error) {
+                showResponse('moveResponse', { error: error.message }, true);
+            }
+        }
+
+        async function surrender() {
+            try {
+                const roomCode = document.getElementById('surrenderRoomCode').value.toUpperCase();
+                const response = await fetch(`/api/gomoku/rooms/${roomCode}/surrender`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        player_name: document.getElementById('surrenderName').value
+                    })
+                });
+                const data = await response.json();
+                showResponse('surrenderResponse', data, !response.ok);
+            } catch (error) {
+                showResponse('surrenderResponse', { error: error.message }, true);
+            }
+        }
+
+        function startPolling() {
+            if (pollingInterval) return;
+            getRoomInfo();
+            pollingInterval = setInterval(getRoomInfo, 2000);
+        }
+
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
+        }
+
+        // 页面卸载时停止轮询
+        window.addEventListener('beforeunload', stopPolling);
+    </script>
+</body>
+</html>

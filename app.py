@@ -1,5 +1,5 @@
 from flask import Flask, send_from_directory, jsonify, request
-from flask_sqlalchemy import SQLAlchemy
+from database import db
 from datetime import datetime
 import os
 
@@ -12,7 +12,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or \
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
 
-db = SQLAlchemy(app)
+# 初始化数据库
+db.init_app(app)
 
 # 数据模型
 class Visitor(db.Model):
@@ -123,6 +124,10 @@ def messages():
             return jsonify([m.to_dict() for m in messages])
         except Exception as e:
             return jsonify({'error': str(e)}), 500
+
+# 注册五子棋蓝图（放在末尾避免循环导入）
+from api_gomoku import gomoku_bp
+app.register_blueprint(gomoku_bp)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 443))
