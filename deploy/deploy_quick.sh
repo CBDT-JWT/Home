@@ -38,6 +38,14 @@ SSH_TARGET="$SERVER_USER@$SERVER_HOST"
 echo -e "${YELLOW}快速部署到 $SERVER_HOST${NC}"
 echo ""
 
+# 构建文档
+echo -e "${YELLOW}构建MkDocs文档...${NC}"
+cd "$PROJECT_ROOT/docs_source"
+mkdocs build --clean
+cd "$PROJECT_ROOT"
+echo -e "${GREEN}✓ 文档构建完成${NC}"
+echo ""
+
 # 同步代码
 echo -e "${YELLOW}同步代码...${NC}"
 if [ -n "$SSH_KEY_PATH" ]; then

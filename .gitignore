@@ -43,5 +43,9 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 
+# MkDocs
+static/notes/
+.cache/
+
 # Deployment config
 deploy_config.sh

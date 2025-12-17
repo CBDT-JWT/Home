@@ -60,6 +60,40 @@
             font-weight: bold;
             letter-spacing: 0.1em;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+
+        .content p {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            opacity: 0.9;
+        }
+
+        .links {
+            margin-top: 30px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .links a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        .links a:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         @keyframes fadeIn {
@@ -77,6 +111,13 @@
             .content h1 {
                 font-size: 2rem;
             }
+            .content p {
+                font-size: 1rem;
+            }
+            .links a {
+                font-size: 0.9rem;
+                padding: 10px 20px;
+            }
         }
     </style>
 </head>
@@ -84,7 +125,12 @@
     <div class="container">
         <div class="background"></div>
         <div class="content">
-            <h1>建设中</h1>
+            <h1>江伟韬的个人主页</h1>
+            <p>建设中，请期待...</p>
+            <div class="links">
+                <a href="/notes/" target="_blank">📚 我的笔记</a>
+                <a href="https://github.com/CBDT-JWT" target="_blank">💻 GitHub</a>
+            </div>
         </div>
     </div>
 </body>
